@@ -1,26 +1,75 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux'; 
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+import { setCurrentUser } from './store/user/userActions';
+import { selectCurrentUser } from './store/user/userSelector';
 import './App.css';
 
-function App() {
+//components
+import Home from './pages/home/Home';
+import Header from './components/header/Header';
+import ShopPage from './pages/shop/Shop'; 
+import SignupSignin from './pages/sign-in-and-sign-up/SigninSignup'
+import Checkout from './pages/checkout/Checkout';
+
+class App extends React.Component  {
+
+  unsubscribeFromAuth = null;
+  
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+        userRef.onSnapshot(snapShot => {
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data()
+          }); 
+        });
+      }
+       setCurrentUser(userAuth);
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromAuth();
+  }
+
+render() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header />
+      <Switch>
+        <Route exact path='/' component={Home} />
+        <Route path='/shop' component={ShopPage} />
+        <Route exact path='/checkout' component={Checkout} />
+        
+        <Route
+            exact
+            path='/signin'
+            render={() =>
+              this.props.currentUser ? (
+                <Redirect to='/' />
+              ) : (
+                <SignupSignin />
+              )
+            }
+          />
+      </Switch>
     </div>
   );
 }
+}
 
-export default App;
+const mapStateToProps = state => ({
+  currentUser: selectCurrentUser(state), 
+});
+
+export default connect(
+  mapStateToProps,
+  { setCurrentUser }
+)(App);
