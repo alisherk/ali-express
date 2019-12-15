@@ -68,7 +68,10 @@ export const convertColSnapToMap = col => {
       items
     }
   }); 
-  console.log(transformedCol);
+  return transformedCol.reduce((acc, col) => {
+     acc[col.title.toLowerCase()] = col; 
+     return acc;
+   }, {});
 };
 
 export default firebase;

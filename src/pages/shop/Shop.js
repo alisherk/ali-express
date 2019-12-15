@@ -1,29 +1,44 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import CollectionOverview from '../../components/collection-overview/ColOverview';
-import CollectionPage from '../collection/CollectionPage';
-import { firestore, convertColSnapToMap } from '../../firebase/firebase.utils'; 
-
+import { connect } from 'react-redux';
+import * as actions from '../../store/shop/shopActions';
+import CollectionOverviewContainer from '../../components/collection-overview/collection-overview.container';
+import CollectionPageContainer from '../collection/collection-page.container';
 
 class ShopPage extends React.Component {
-  
-  unsubscribeFromSnapshot = null; 
 
   componentDidMount() {
-    const colRef = firestore.collection('collections'); 
-    colRef.onSnapshot(async snapshot => {
-      convertColSnapToMap(snapshot);
-    });
+    
+    const { fetchCollectionsStartAsync } = this.props;
+    fetchCollectionsStartAsync();
+   
+   /*const resp = await fetch('https://firestore.googleapis.com/v1/projects/clth-shop/databases/(default)/documents/collections');
+     const result = await resp.json();  */
+/*     const colRef = firestore.collection('collections'); 
+    this.unsubscribeFromSnapshot = colRef.onSnapshot(async snapshot => {
+      const colMap = convertColSnapToMap(snapshot);
+      this.props.updateCollections(colMap);
+      this.setState({loading: false}); 
+    });  */
   }
+
   render() {
-    const { match } = this.props;
+    const { match } = this.props; 
+
     return (
       <div className='shop-page'>
-        <Route exact path={`${match.path}`} component={CollectionOverview} />
-        <Route path={`${match.path}/:colId`} component={CollectionPage} />
+        <Route
+          exact
+          path={`${match.path}`}
+          component={CollectionOverviewContainer}
+        />
+        <Route
+          path={`${match.path}/:colId`}
+          component={CollectionPageContainer}
+        />
       </div>
     );
   }
 }
 
-export default ShopPage;
+export default connect(null, actions)(ShopPage);

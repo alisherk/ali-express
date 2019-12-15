@@ -40,7 +40,7 @@ export const FormInputContainer = styled.input`
 
 const isValuPresent = props => {
   if(props.value.length){
-    return shrinkLabelStyle
+    return shrinkLabelStyle; 
   }
 }
 
