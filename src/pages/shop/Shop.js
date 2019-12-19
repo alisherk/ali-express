@@ -9,8 +9,8 @@ class ShopPage extends React.Component {
 
   componentDidMount() {
     
-    const { fetchCollectionsStartAsync } = this.props;
-    fetchCollectionsStartAsync();
+    const { fetchCollectionStart } = this.props;
+    fetchCollectionStart();
    
    /*const resp = await fetch('https://firestore.googleapis.com/v1/projects/clth-shop/databases/(default)/documents/collections');
      const result = await resp.json();  */

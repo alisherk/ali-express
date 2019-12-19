@@ -1,9 +1,8 @@
 import React from 'react';
-
 import FormInput from '../form-input/FormInput';
 import CustomButton from '../custom-button/CustomButton';
-import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
-
+import { connect } from 'react-redux';
+import * as actions from '../../store/user/userActions';
 import './sign-up.styles.scss';
 
 class SignUp extends React.Component {
@@ -17,31 +16,15 @@ class SignUp extends React.Component {
     };
   }
 
-  handleSubmit = async event => {
+  handleSubmit = event => {
+    const { signUpStart } = this.props;
     event.preventDefault();
     const { displayName, email, password, confirmPassword } = this.state;
     if (password !== confirmPassword) {
       alert("passwords don't match");
       return;
     }
-
-    try {
-      const { user } = await auth.createUserWithEmailAndPassword(
-        email,
-        password
-      );
-
-      await createUserProfileDocument(user, { displayName });
-
-      this.setState({
-        displayName: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    signUpStart({ email, password, displayName });
   };
 
   handleChange = event => {
@@ -78,6 +61,7 @@ class SignUp extends React.Component {
             value={password}
             onChange={this.handleChange}
             label='Password'
+            autoComplete='off'
             required
           />
           <FormInput
@@ -86,6 +70,7 @@ class SignUp extends React.Component {
             value={confirmPassword}
             onChange={this.handleChange}
             label='Confirm Password'
+            autoComplete='off'
             required
           />
           <CustomButton type='submit'>SIGN UP</CustomButton>
@@ -95,4 +80,4 @@ class SignUp extends React.Component {
   }
 }
 
-export default SignUp;
+export default connect(null, actions)(SignUp);
